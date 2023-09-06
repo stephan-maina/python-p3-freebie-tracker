@@ -1,29 +1,20 @@
-from sqlalchemy import ForeignKey, Column, Integer, String, MetaData
-from sqlalchemy.orm import relationship, backref
+from sqlalchemy import create_engine, Column, Integer, String, ForeignKey
+from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 
-convention = {
-    "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",
-}
-metadata = MetaData(naming_convention=convention)
+Base = declarative_base()
 
-Base = declarative_base(metadata=metadata)
+class User(Base):
+    __tablename__ = 'users'
+    id = Column(Integer, primary_key=True)
+    username = Column(String, unique=True)
+    posts = relationship("Post", back_populates="author")
 
-class Company(Base):
-    __tablename__ = 'companies'
+class Post(Base):
+    __tablename__ = 'posts'
+    id = Column(Integer, primary_key=True)
+    title = Column(String)
+    content = Column(String)
+    author_id = Column(Integer, ForeignKey('users.id'))
+    author = relationship("User", back_populates="posts")
 
-    id = Column(Integer(), primary_key=True)
-    name = Column(String())
-    founding_year = Column(Integer())
-
-    def __repr__(self):
-        return f'<Company {self.name}>'
-
-class Dev(Base):
-    __tablename__ = 'devs'
-
-    id = Column(Integer(), primary_key=True)
-    name= Column(String())
-
-    def __repr__(self):
-        return f'<Dev {self.name}>'
